@@ -46,18 +46,14 @@ def keepAlive():
 
 def recMsg():
     with connect(ws_address, ping_timeout=None) as websocket:
-        for x in range(3):
+        websocket.send("client")
+        while True:
             msg = websocket.recv()
-            send(msg)
-
-        try:
-            sock.shutdown(socket.SHUT_RDWR)
-        except OSError:
-            # Handle cases where the socket is already disconnected
-            pass
-        finally:
-            sock.close()
-            exit()
+            print(msg)
+            renderer = Renderer()
+            textImage = renderer.create_text(msg)
+            buf = renderer.processImage(textImage)
+            send(buf)
 
 
 def send(data = None):
