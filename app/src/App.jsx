@@ -56,11 +56,12 @@ function App() {
   };
   return (
     <>
-      <form onSubmit={sendMessage}>
-        <input onChange={(event) => setMsg(event.target.value)} ref={input}/>
-        <p>{msg}</p>
-        <button type={"submit"}>Send!</button>
-      </form>
+      <div className={"bg"}>
+        <form onSubmit={sendMessage}>
+          <input onChange={(event) => setMsg(event.target.value)} ref={input}/>
+          <button type={"submit"}>Send!</button>
+        </form>
+      </div>
     </>
   );
 }
