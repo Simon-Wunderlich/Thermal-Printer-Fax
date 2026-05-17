@@ -1,4 +1,5 @@
 import websockets
+import base64
 from websockets import broadcast
 from websockets.sync.server import serve
 from renderer import Renderer
@@ -6,23 +7,35 @@ import threading
 
 CLIENTS = set()
 
-async def handler(websocket):
-    CLIENTS.add(websocket)
+def handler(websocket):
+    print("client joined")
     try:
-        async for message in websocket:
-            await broadcastMessage(message)
+        for message in websocket:
+            if (message == "client"):
+                CLIENTS.add(websocket)
+            else:
+                broadcastMessage(message)
     finally:
-        CLIENTS.remove(websocket)
+        try:
+            CLIENTS.remove(websocket)
+        except:
+            pass
 
 def main():
     with serve(handler, host="0.0.0.0", port=8765) as server:
        server.serve_forever()  # run forever
 
 def broadcastMessage(message):
-    renderer = Renderer()
-    textImage = renderer.create_text(message)
-    buf = renderer.processImage(textImage)
-    broadcast(CLIENTS, buf)
+    print(message)
+    #renderer = Renderer()
+    #textImage = renderer.create_text(message)
+    #buf = renderer.processImage(textImage)
+    for x in CLIENTS:
+        try:
+            x.send(message)
+        except:
+            pass
+    #broadcast(CLIENTS, message)
 
 
 if __name__ == "__main__":
