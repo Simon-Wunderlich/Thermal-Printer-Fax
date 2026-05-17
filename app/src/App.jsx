@@ -5,6 +5,7 @@ import Paho from "paho-mqtt";
 function App() {
   const [msg, setMsg] = useState("");
   const clientRef = useRef(null);
+  const input = useRef(null)
 
   useEffect(() => {
     // 1. Initialize the Client
@@ -17,10 +18,6 @@ function App() {
     // 2. Setup Callbacks
     client.onConnectionLost = (responseObject) => {
       console.log("Connection Lost: " + responseObject.errorMessage);
-    };
-
-    client.onMessageArrived = (message) => {
-      console.log("Message Arrived: " + message.payloadString);
     };
 
     // 3. Connect to the Broker
@@ -47,23 +44,20 @@ function App() {
   // Function to Publish Messages
   const sendMessage = (e) => {
     e.preventDefault();
+    if (msg == "")
+      return
     if (clientRef.current && clientRef.current.isConnected()) {
       const message = new Paho.Message(msg);
       message.destinationName = "my/test/topic53";
       clientRef.current.send(message);
       setMsg("");
+      input.current.value = ""
     }
   };
-
-  // const sendMessage = () => {
-  //   socket.send(msg)
-  //   socket.close()
-  // }
-
   return (
     <>
       <form onSubmit={sendMessage}>
-        <input onChange={(event) => setMsg(event.target.value)} />
+        <input onChange={(event) => setMsg(event.target.value)} ref={input}/>
         <p>{msg}</p>
         <button type={"submit"}>Send!</button>
       </form>

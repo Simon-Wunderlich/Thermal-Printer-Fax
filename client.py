@@ -10,7 +10,7 @@ from renderer import Renderer
 lock = threading.Lock()
 KEY = "70656e6973"
 
-bt_address = "00:00:00:04:01:EA"
+bt_address = "00:00:00:04:0E:60"
 port = 1
 
 
@@ -23,6 +23,8 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
 def on_message(client, userdata, msg):
     print(msg.payload.decode("utf-8"))
     msg = msg.payload.decode("utf-8")
+    if len(msg) == 0:
+        return
     renderer = Renderer()
     textImage = renderer.create_text(msg)
     buf = renderer.processImage(textImage)
