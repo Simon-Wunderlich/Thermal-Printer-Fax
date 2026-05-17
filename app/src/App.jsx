@@ -1,20 +1,65 @@
-import {useEffect, useState} from 'react'
+import {useEffect, useState, useRef} from 'react'
 import './App.css'
+import Paho from "paho-mqtt"
 
 function App() {
   const [msg, setMsg] = useState("")
-  const [socket, setSocket] = useState(null)
+  const clientRef = useRef(null);
 
   useEffect(() => {
-    // connect to ws
-    const _socket = new WebSocket('ws://test.sorry.horse:8765')
-    setSocket(_socket)
+    // 1. Initialize the Client
+    const client = new Paho.Client(
+        "broker.hivemq.com", // Replace with your MQTT broker address
+        8000,
+          "react-client-id"
+    );
+
+    // 2. Setup Callbacks
+    client.onConnectionLost = (responseObject) => {
+      console.log("Connection Lost: " + responseObject.errorMessage);
+    };
+
+    client.onMessageArrived = (message) => {
+      console.log("Message Arrived: " + message.payloadString);
+    };
+
+    // 3. Connect to the Broker
+    client.connect({
+      onSuccess: () => {
+        console.log("Connected to MQTT Broker");
+        // 4. Subscribe after connecting
+        client.subscribe("my/test/topic53");
+      },
+      onFailure: (message) => {
+        console.log("Connection Failed: " + message.errorMessage);
+      }
+    });
+
+    clientRef.current = client;
+    // 5. Cleanup on unmount
+    return () => {
+      if (clientRef.current && clientRef.current.isConnected()) {
+        clientRef.current.disconnect();
+      }
+    };
   }, []);
 
-  const sendMessage = () => {
-    socket.send(msg)
-    socket.close()
-  }
+  // Function to Publish Messages
+  const sendMessage = (e) => {
+    e.preventDefault()
+    if (clientRef.current && clientRef.current.isConnected()) {
+      const message = new Paho.Message(msg);
+      message.destinationName = "my/test/topic53";
+      clientRef.current.send(message);
+      setMsg("")
+    }
+  };
+
+
+  // const sendMessage = () => {
+  //   socket.send(msg)
+  //   socket.close()
+  // }
 
   return (
     <>
