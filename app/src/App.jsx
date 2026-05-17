@@ -28,7 +28,7 @@ function App() {
       onSuccess: () => {
         console.log("Connected to MQTT Broker");
         // 4. Subscribe after connecting
-        client.subscribe("my/test/topic53");
+        client.subscribe("70656e6973/all");
       },
       onFailure: (message) => {
         console.log("Connection Failed: " + message.errorMessage);
@@ -49,7 +49,7 @@ function App() {
     e.preventDefault();
     if (clientRef.current && clientRef.current.isConnected()) {
       const message = new Paho.Message(msg);
-      message.destinationName = "my/test/topic53";
+      message.destinationName = "70656e6973/all";
       clientRef.current.send(message);
       setMsg("");
     }

@@ -31,7 +31,7 @@ def on_message(client, userdata, msg):
 
 def on_subscribe(client, userdata, mid, granted_qos, properties=None):
     print("Subscribed: " + str(mid) + " " + str(granted_qos))
-    client.publish(KEY + "/all", payload="I see you an i appReciae you", qos=1)
+    # client.publish(KEY + "/all", payload="I see you an i appReciae you", qos=1)
 
 
 client = paho.Client(paho.CallbackAPIVersion.VERSION2)
