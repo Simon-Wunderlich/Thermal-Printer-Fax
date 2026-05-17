@@ -1,27 +1,64 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./App.css";
-import mqtt from "mqtt";
+import Paho from "paho-mqtt";
 
 function App() {
   const [msg, setMsg] = useState("");
-  const key = "70656e6973";
+  const clientRef = useRef(null);
 
-  const client = mqtt.connect("tls://broker.hivemq.com:8884");
+  useEffect(() => {
+    // 1. Initialize the Client
+    const client = new Paho.Client(
+      "broker.hivemq.com", // Replace with your MQTT broker address
+      8000,
+      "react-client-id",
+    );
 
-  client.on("connect", () => {
-    console.log("i am working");
-    client.publish(key + "/all", "Hello mqtt");
-  });
+    // 2. Setup Callbacks
+    client.onConnectionLost = (responseObject) => {
+      console.log("Connection Lost: " + responseObject.errorMessage);
+    };
 
-  client.on("message", (topic, message) => {
-    // message is Buffer
-    console.log(message.toString());
-    client.end();
-  });
+    client.onMessageArrived = (message) => {
+      console.log("Message Arrived: " + message.payloadString);
+    };
 
-  const sendMessage = () => {
-    client.publish(key + "/all", msg);
+    // 3. Connect to the Broker
+    client.connect({
+      onSuccess: () => {
+        console.log("Connected to MQTT Broker");
+        // 4. Subscribe after connecting
+        client.subscribe("my/test/topic53");
+      },
+      onFailure: (message) => {
+        console.log("Connection Failed: " + message.errorMessage);
+      },
+    });
+
+    clientRef.current = client;
+    // 5. Cleanup on unmount
+    return () => {
+      if (clientRef.current && clientRef.current.isConnected()) {
+        clientRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  // Function to Publish Messages
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (clientRef.current && clientRef.current.isConnected()) {
+      const message = new Paho.Message(msg);
+      message.destinationName = "my/test/topic53";
+      clientRef.current.send(message);
+      setMsg("");
+    }
   };
+
+  // const sendMessage = () => {
+  //   socket.send(msg)
+  //   socket.close()
+  // }
 
   return (
     <>
