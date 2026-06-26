@@ -109,7 +109,7 @@ function App() {
   return (
     <div style={{height:"100vh", overflow:"clip", position:"relative"}}>
       <div className={"videoCont"}>
-        <video muted className={"start"}>
+        <video muted autoPlay className={"start"}>
           <source src={window.innerWidth > 1000 ? "/FaxBoot.mov" : "/FaxBoot_mobile.mov"} type="video/quicktime"/>
         </video>
       </div>
