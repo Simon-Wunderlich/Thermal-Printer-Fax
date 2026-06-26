@@ -4,6 +4,7 @@ import Paho from "paho-mqtt";
 
 function App() {
   const [img, setImg] = useState("");
+  const [topic, setTopic] = useState("all");
   const [msg, setMsg] = useState("");
   const clientRef = useRef(null);
   const input = useRef(null);
@@ -51,9 +52,10 @@ function App() {
         "msg" : msg,
         "img" : img
       }));
-      message.destinationName = "70656e6973/all";
+      message.destinationName = "70656e6973/" + topic;
       clientRef.current.send(message);
       setMsg("");
+      setImg("");
       input.current.value = "";
     }
   };
@@ -76,11 +78,11 @@ function App() {
     <>
       <div className={"bg"}>
         <form onSubmit={sendMessage} className="sendForm">
-          <select>
-            <option>All</option>
-            <option>Chris</option>
-            <option>Simon</option>
-            <option>Akira</option>
+          <select onChange={(e) => setTopic(e.target.value)}>
+            <option value={"all"}>All</option>
+            <option value={"chris"}>Chris</option>
+            <option value={"simon"}>Simon</option>
+            <option value={"akira"}>Akira</option>
           </select>
           <textarea
             onChange={(event) => setMsg(event.target.value)}

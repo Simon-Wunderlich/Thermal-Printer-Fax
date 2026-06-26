@@ -37,18 +37,24 @@ class Renderer:
         return Image.open(BytesIO(image_bytes))
 
     def createBody(self, message):
-        text_raw = self.create_text(message["msg"])
-        image_raw = self.create_attachment(message["img"])
+        text = None
+        image = None
+        if (message["msg"] != ""):
+            text_raw = self.create_text(message["msg"])
+            text = self.processImage(text_raw)
 
-        text = self.processImage(text_raw)
-        image = self.processImage(image_raw)
+        if (message["img"] != ""):
+            image_raw = self.create_attachment(message["img"])
+            image = self.processImage(image_raw)
 
-        totalHeight = text.height + image.height
+        textHeight = text.height if text is not None else 0
+        imgHeight = image.height if image is not None else 0
+        totalHeight = textHeight + imgHeight
 
         new_im = Image.new('1', (self.printerWidth, totalHeight))
 
         new_im.paste(image, (0,0))
-        new_im.paste(text, (0, image.height))
+        new_im.paste(text, (0, imgHeight))
         return new_im
 
 
