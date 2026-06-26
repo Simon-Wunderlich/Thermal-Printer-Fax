@@ -34,7 +34,7 @@ def connectBT():
         except Exception as e:
             btConnected = False
             print("Connection failed", e)
-            time.sleep(5)
+            time.sleep(1)
 
 def on_connect(client, userdata, flags, reason_code, properties=None):
     if reason_code == 0:
@@ -106,10 +106,13 @@ def keepAlive():
         try:
             select.select([sock,], [sock,], [], 5)
             send()
-            print("badum")
         except:
-            sock.shutdown(2)
-            sock.close()
+            try:
+                sock.shutdown(2)
+                sock.close()
+            except:
+                pass
+
             print("Reconnecting...")
             btConnected = False
             connectBT()
@@ -129,17 +132,18 @@ def send(data=None):
         time.sleep(5)
 
 def sendQueue():
-    print("sending queue", btConnected)
+    print("sending queue")
     renderer = Renderer()
 
     with open("queue.json", "r") as f:
         queue = json.load(f)
 
+
     for message in queue:
         textImage = renderer.create_text(message["msg"])
         buf = renderer.processImage(textImage)
         send(buf)
-        queue.remove(message)
+        # _queue.remove(message)
 
     with open("queue.json", "w") as f:
         json.dump(queue, f, indent=4)
