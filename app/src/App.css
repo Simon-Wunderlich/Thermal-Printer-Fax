@@ -138,6 +138,7 @@
         left: 29px;
         width: 411px;
         height: 197px;
+        outline: none;
     }
     input[type="file"] {
         position: absolute;
