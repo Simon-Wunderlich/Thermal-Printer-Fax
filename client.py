@@ -3,9 +3,7 @@ import random
 import socket
 import threading
 import time
-
 import paho.mqtt.client as paho
-
 from printer import Printer
 from renderer import Renderer
 import select
@@ -49,23 +47,25 @@ def on_message(client, userdata, msg):
     if len(msg) == 0:
         return
     id = random.randint(1111, 9999)
+    message = json.loads(msg)
+    payload = {"id" : id, "msg" : message}
     if not btConnected:
         with open("queue.json", "r") as f:
             queue = json.load(f)
-            queue.append({"id" : id, "msg" : msg})
+            queue.append(payload)
         with open("queue.json", "w") as f:
             json.dump(queue, f, indent = 4)
 
     renderer = Renderer()
-    textImage = renderer.create_text(msg)
+    textImage = renderer.create_text(message)
     buf = renderer.processImage(textImage)
     send(buf)
 
     with open("queue.json", "r") as f:
         queue = json.load(f)
-        queue = queue.remove({"id" : id, "msg" : msg})
+        if payload in queue:
+            queue = queue.remove(payload)
     with open("queue.json", "w") as f:
-
         json.dump(queue, f, indent = 4)
 
 client = paho.Client(paho.CallbackAPIVersion.VERSION2)
