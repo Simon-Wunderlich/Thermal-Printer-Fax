@@ -1,61 +1,155 @@
-.bg {
-    width: 100vw;
-    height: 100vh;
-    background-image: url("assets/fax_desk_long-text.png");
-}
+@media only screen and (max-device-width: 1000px) and (orientation: portrait) {
+    body {
+        background-color: #141516;
+    }
+    .bg {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("assets/fax_desk_long-text_mobile.png");
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-color: #141516;
+        /*background-position: calc(50% + 39px) 50%;*/
+        max-height: calc(100vw / 0.572222222);
+    }
 
-form {
-    width: 473px;
-    height: 390px;
-    position: absolute;
-    left: 668px;
-    top: 254px;
-    display: flex;
-    flex-wrap: nowrap;
-    flex-direction: column;
-    place-items: center;
-    place-content: center;
+    form {
+        position: absolute;
+        left: 12vw;
+        width: 77vw;
+        height: 27.5vh;
+
+        top: 19vh;
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: column;
+        place-items: center;
+        place-content: center;
+    }
+    select {
+        position: absolute;
+        top: 7.5vh;
+        width: 54vw;
+        height: 1.4vh;
+        left: 12.6vw;
+        border: #727272 solid 1px;
+        border-left-width: 0.5vw;
+        font-size: 2vw;
+    }
+    #send {
+        position: absolute;
+        left: 66.7vw;
+        top: 7.5vh;
+        height: 1.4vh;
+        border-style: outset;
+        border-bottom-width: 0.1vh;
+        border-left: 1vw #e0e8f9;
+        font-size: 1.5vw;
+        background-color: #a8a8a8;
+        width: 5vw;
+        z-index: 100;
+    }
+    textarea {
+        resize: none;
+        position: absolute;
+        top: 9.1vh;
+        left: 4.6vw;
+        width: 66vw;
+        height: 14.3vh;
+    }
+    /*input[type="file"] {
+        position: absolute;
+        top: 2vh;
+        color: transparent;
+        left: 52vw;
+        height: 2vh;
+        font-size: 1vw;
+        font-weight: normal;
+        width: 8vw;
+        background-color: none;
+        outline: none;
+        border: none;
+    }*/
+    input[type="file"] {
+        display: none;
+    }
+
+    .custom-file-upload {
+        top: 5.6vh;
+        left: 52vw;
+        width: 12vw;
+        font-size: 1.4vw;
+        height: 1.2vh;
+        border: 1px groove #727272;
+        display: inline-block;
+        cursor: pointer;
+        position: absolute;
+        background-color: #a8a8a8;
+        padding: 0.1vw 1vw;
+    }
 }
-select {
-    position: absolute;
-    top: 100px;
-    width: 334px;
-    height: 20px;
-    left: 78px;
-    border: #727272 solid 1px;
-    border-left-width: 2px;
-}
-#send {
-    position: absolute;
-    left: 412px;
-    top: 100px;
-    height: 20px;
-    border-style: outset;
-    border-bottom-width: 2px;
-    border-left: 1px #e8e8e8;
-    font-size: 11px;
-    background-color: #a8a8a8;
-    width: 32px;
-    z-index: 100;
-}
-textarea {
-    resize: none;
-    position: absolute;
-    top: 122px;
-    left: 29px;
-    width: 411px;
-    height: 197px;
-}
-input[type="file"] {
-    position: absolute;
-    top: 75px;
-    color: transparent;
-    left: 328px;
-    height: 18px;
-    font-size: 11px;
-    border: outset 1px #a8a8a8;
-    width: 65px;
-    background-color: #e8e8e8;
-    outline: none;
-    border: none;
+@media only screen and (min-device-width: 1000px) {
+    .bg {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("assets/fax_desk_long-text.png");
+    }
+
+    form {
+        width: 473px;
+        height: 390px;
+        position: absolute;
+        left: 668px;
+        top: 254px;
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: column;
+        place-items: center;
+        place-content: center;
+    }
+    select {
+        position: absolute;
+        top: 100px;
+        width: 334px;
+        height: 20px;
+        left: 78px;
+        border: #727272 solid 1px;
+        border-left-width: 2px;
+    }
+    #send {
+        position: absolute;
+        left: 412px;
+        top: 100px;
+        height: 20px;
+        border-style: outset;
+        border-bottom-width: 2px;
+        border-left: 1px #e8e8e8;
+        font-size: 11px;
+        background-color: #a8a8a8;
+        width: 32px;
+        z-index: 100;
+    }
+    textarea {
+        resize: none;
+        position: absolute;
+        top: 122px;
+        left: 29px;
+        width: 411px;
+        height: 197px;
+    }
+    input[type="file"] {
+        position: absolute;
+        top: 75px;
+        color: transparent;
+        left: 328px;
+        height: 18px;
+        font-size: 11px;
+        border: outset 1px #a8a8a8;
+        width: 65px;
+        background-color: #e8e8e8;
+        outline: none;
+        border: none;
+    }
 }

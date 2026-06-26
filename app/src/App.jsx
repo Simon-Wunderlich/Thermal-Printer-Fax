@@ -68,7 +68,10 @@ function App() {
             ref={input}
             type=""
           />
-          <input type="file" />
+          <label for="file-upload" class="custom-file-upload">
+            Upload img
+          </label>
+          <input type="file" id="file-upload" />
           <button id="send" type={"submit"}>
             Send!
           </button>
