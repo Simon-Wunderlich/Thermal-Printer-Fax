@@ -48,15 +48,17 @@ function App() {
     e.preventDefault();
     if (msg === "" && img === "") return;
     if (clientRef.current && clientRef.current.isConnected()) {
-      const message = new Paho.Message(JSON.stringify({
-        "msg" : msg,
-        "img" : img
-      }));
-      message.destinationName = "70656e6973/" + topic;
-      clientRef.current.send(message);
-      setMsg("");
-      setImg("");
-      input.current.value = "";
+        const message = new Paho.Message(
+            JSON.stringify({
+                msg: msg,
+                img: img,
+            })
+        );
+        message.destinationName = "70656e6973/" + topic;
+        clientRef.current.send(message);
+        setMsg("");
+        setImg("");
+        input.current.value = "";
     }
   };
 
@@ -73,7 +75,7 @@ function App() {
       reader.readAsDataURL(uploadedFile);
     }
   };
-  
+
   return (
     <>
       <div className={"bg"}>
@@ -89,7 +91,10 @@ function App() {
             ref={input}
             type=""
           />
-          <input type="file" onChange={handleFileChange}/>
+          <label for="file-upload" class="custom-file-upload">
+            Upload img
+          </label>
+          <input type="file" id="file-upload" onChange={handleFileChange} />
           <button id="send" type={"submit"}>
             Send!
           </button>
