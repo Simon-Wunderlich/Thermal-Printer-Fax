@@ -9,11 +9,14 @@ import paho.mqtt.client as paho
 from printer import Printer
 from renderer import Renderer
 import select
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 lock = threading.Lock()
 KEY = "70656e6973"
 
-bt_address = "00:00:00:04:11:D0"
+bt_address = os.getenv("BT_ADDRESS")
 port = 1
 btConnected = False
 
@@ -36,7 +39,7 @@ def connectBT():
 def on_connect(client, userdata, flags, reason_code, properties=None):
     if reason_code == 0:
         client.subscribe(KEY + "/all", qos=1)
-        client.subscribe(KEY + "/simon", qos=1)
+        client.subscribe(KEY + os.getenv("TOPIC"), qos=1)
         print("Subscribed")
 
 
