@@ -24,6 +24,7 @@ function App() {
 
     // 3. Connect to the Broker
     client.connect({
+      useSSL: true,
       onSuccess: () => {
         console.log("Connected to MQTT Broker");
         // 4. Subscribe after connecting
@@ -78,6 +79,7 @@ function App() {
 
   return (
     <>
+      <div className={"start"}/>
       <div className={"bg"}>
         <form onSubmit={sendMessage} className="sendForm">
           <select onChange={(e) => setTopic(e.target.value)}>
@@ -91,7 +93,7 @@ function App() {
             ref={input}
             type=""
           />
-          <label for="file-upload" class="custom-file-upload">
+          <label for="file-upload" className="custom-file-upload">
             Upload img
           </label>
           <input type="file" id="file-upload" onChange={handleFileChange} />

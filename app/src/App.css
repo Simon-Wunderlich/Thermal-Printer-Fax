@@ -2,6 +2,19 @@
     body {
         background-color: #141516;
     }
+
+    .start {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("assets/FaxBoot_mobile.gif");
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-color: #141516;
+        /*background-position: calc(50% + 39px) 50%;*/
+        max-height: calc(100vw / 0.572222222);
+    }
+
     .bg {
         position: absolute;
         width: 100vw;
@@ -96,6 +109,22 @@
         background-image: url("assets/fax_desk_long-text.png");
     }
 
+    .start {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("assets/FaxBoot.gif");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-color: #141516;
+        /*background-position: calc(50% + 39px) 50%;*/
+        max-height: calc(100vw / 0.572222222);
+        z-index: 10000;
+        animation: linear turnOn 1s forwards;
+        animation-delay: 2s;
+    }
+
+
     form {
         width: 473px;
         height: 390px;
@@ -152,4 +181,9 @@
         outline: none;
         border: none;
     }
+}
+
+@keyframes turnOn {
+    0% {opacity: 100%;}
+    100% {opacity: 0%;}
 }
