@@ -10,7 +10,7 @@ from renderer import Renderer
 lock = threading.Lock()
 KEY = "70656e6973"
 
-bt_address = "00:00:00:04:0E:60"
+bt_address = "00:00:00:04:11:D0"
 port = 1
 
 
@@ -79,6 +79,7 @@ def keepAlive():
     while True:
         try:
             send()
+            print("badum")
         except:
             try:
                 sock.shutdown(socket.SHUT_RDWR)

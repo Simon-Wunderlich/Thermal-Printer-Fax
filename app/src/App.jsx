@@ -5,7 +5,7 @@ import Paho from "paho-mqtt";
 function App() {
   const [msg, setMsg] = useState("");
   const clientRef = useRef(null);
-  const input = useRef(null)
+  const input = useRef(null);
 
   useEffect(() => {
     // 1. Initialize the Client
@@ -44,22 +44,34 @@ function App() {
   // Function to Publish Messages
   const sendMessage = (e) => {
     e.preventDefault();
-    if (msg == "")
-      return
+    if (msg == "") return;
     if (clientRef.current && clientRef.current.isConnected()) {
       const message = new Paho.Message(msg);
       message.destinationName = "70656e6973/all";
       clientRef.current.send(message);
       setMsg("");
-      input.current.value = ""
+      input.current.value = "";
     }
   };
   return (
     <>
       <div className={"bg"}>
-        <form onSubmit={sendMessage}>
-          <input onChange={(event) => setMsg(event.target.value)} ref={input}/>
-          <button type={"submit"}>Send!</button>
+        <form onSubmit={sendMessage} className="sendForm">
+          <select>
+            <option>All</option>
+            <option>Chris</option>
+            <option>Simon</option>
+            <option>Akira</option>
+          </select>
+          <textarea
+            onChange={(event) => setMsg(event.target.value)}
+            ref={input}
+            type=""
+          />
+          <input type="file" />
+          <button id="send" type={"submit"}>
+            Send!
+          </button>
         </form>
       </div>
     </>

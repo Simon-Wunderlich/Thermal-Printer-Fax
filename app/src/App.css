@@ -1,16 +1,61 @@
 .bg {
-  width: 100vw;
-  height: 100vh;
-  background-image: url("assets/fax_desk_long-text.png");
+    width: 100vw;
+    height: 100vh;
+    background-image: url("assets/fax_desk_long-text.png");
 }
 
 form {
-  width: 473px;
-  height: 390px;
-  position: absolute;
-  left: 668px;
-  top: 254px;
-  display: flex;
-  place-items: center;
-  place-content: center;
+    width: 473px;
+    height: 390px;
+    position: absolute;
+    left: 668px;
+    top: 254px;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    place-items: center;
+    place-content: center;
+}
+select {
+    position: absolute;
+    top: 100px;
+    width: 334px;
+    height: 20px;
+    left: 78px;
+    border: #727272 solid 1px;
+    border-left-width: 2px;
+}
+#send {
+    position: absolute;
+    left: 412px;
+    top: 100px;
+    height: 20px;
+    border-style: outset;
+    border-bottom-width: 2px;
+    border-left: 1px #e8e8e8;
+    font-size: 11px;
+    background-color: #a8a8a8;
+    width: 32px;
+    z-index: 100;
+}
+textarea {
+    resize: none;
+    position: absolute;
+    top: 122px;
+    left: 29px;
+    width: 411px;
+    height: 197px;
+}
+input[type="file"] {
+    position: absolute;
+    top: 75px;
+    color: transparent;
+    left: 328px;
+    height: 18px;
+    font-size: 11px;
+    border: outset 1px #a8a8a8;
+    width: 65px;
+    background-color: #e8e8e8;
+    outline: none;
+    border: none;
 }
