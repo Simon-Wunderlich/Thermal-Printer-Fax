@@ -42,7 +42,6 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
 
 
 def on_message(client, userdata, msg):
-    print(msg.payload.decode("utf-8"))
     msg = msg.payload.decode("utf-8")
     if len(msg) == 0:
         return
