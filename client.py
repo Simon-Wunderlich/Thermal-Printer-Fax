@@ -40,6 +40,9 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
         client.subscribe(KEY + os.getenv("TOPIC"), qos=1)
         print("Subscribed")
 
+def on_disconnect(client, userdata, flags, reason_code, properties=None):
+    client.connect("broker.hivemq.com", 8883)
+
 
 def on_message(client, userdata, msg):
     msg = msg.payload.decode("utf-8")
@@ -72,7 +75,7 @@ client = paho.Client(paho.CallbackAPIVersion.VERSION2)
 client.tls_set(tls_version=paho.ssl.PROTOCOL_TLS)
 
 client.on_connect = on_connect
-
+client.on_disconnect = on_disconnect
 client.on_message = on_message
 
 
