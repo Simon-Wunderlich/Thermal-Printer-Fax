@@ -13,8 +13,6 @@ function App() {
   useEffect(() => {
     const video = document.getElementsByClassName('start')[0];
 
-    console.log(video)
-
     // Wait for video details to load before jumping to the timestamp
     video.addEventListener('loadedmetadata', function() {
       console.log(video.currentTime)
@@ -23,7 +21,12 @@ function App() {
     });
 
     video.addEventListener('timeupdate', function handleLoop() {
-      console.log(video.currentTime)
+      if (video.currentTime >= 4) {
+        const videoCont = document.getElementsByClassName('videoCont')[0];
+        if (!videoCont)
+          return
+        videoCont.remove()
+      }
     })
 
 
