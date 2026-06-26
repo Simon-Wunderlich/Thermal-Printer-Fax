@@ -53,8 +53,10 @@ class Renderer:
 
         new_im = Image.new('1', (self.printerWidth, totalHeight))
 
-        new_im.paste(image, (0,0))
-        new_im.paste(text, (0, imgHeight))
+        if (image is not None):
+            new_im.paste(image, (0,0))
+        if (text is not None):
+            new_im.paste(text, (0, imgHeight))
         return new_im
 
 
