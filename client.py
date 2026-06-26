@@ -1,3 +1,5 @@
+import json
+import random
 import socket
 import threading
 import time
@@ -6,18 +8,36 @@ import paho.mqtt.client as paho
 
 from printer import Printer
 from renderer import Renderer
+import select
 
 lock = threading.Lock()
 KEY = "70656e6973"
 
 bt_address = "00:00:00:04:11:D0"
 port = 1
+btConnected = False
 
+sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+
+def connectBT():
+    global sock
+    global btConnected
+    while not btConnected:
+        try:
+            sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+            sock.connect((bt_address, port))
+            btConnected = True
+            sendQueue()
+        except Exception as e:
+            btConnected = False
+            print("Connection failed", e)
+            time.sleep(5)
 
 def on_connect(client, userdata, flags, reason_code, properties=None):
     if reason_code == 0:
         client.subscribe(KEY + "/all", qos=1)
-        print("we have siubrcregewd")
+        client.subscribe(KEY + "/simon", qos=1)
+        print("Subscribed")
 
 
 def on_message(client, userdata, msg):
@@ -25,16 +45,25 @@ def on_message(client, userdata, msg):
     msg = msg.payload.decode("utf-8")
     if len(msg) == 0:
         return
+    id = random.randint(1111, 9999)
+    if not btConnected:
+        with open("queue.json", "r") as f:
+            queue = json.load(f)
+            queue.append({"id" : id, "msg" : msg})
+        with open("queue.json", "w") as f:
+            json.dump(queue, f, indent = 4)
+
     renderer = Renderer()
     textImage = renderer.create_text(msg)
     buf = renderer.processImage(textImage)
     send(buf)
 
+    with open("queue.json", "r") as f:
+        queue = json.load(f)
+        queue = queue.remove({"id" : id, "msg" : msg})
+    with open("queue.json", "w") as f:
 
-def on_subscribe(client, userdata, mid, granted_qos, properties=None):
-    print("Subscribed: " + str(mid) + " " + str(granted_qos))
-    # client.publish(KEY + "/all", payload="I see you an i appReciae you", qos=1)
-
+        json.dump(queue, f, indent = 4)
 
 client = paho.Client(paho.CallbackAPIVersion.VERSION2)
 client.tls_set(tls_version=paho.ssl.PROTOCOL_TLS)
@@ -43,17 +72,8 @@ client.on_connect = on_connect
 
 client.on_message = on_message
 
-client.on_subscribe = on_subscribe
-
 
 client.connect("broker.hivemq.com", 8883)
-
-
-sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-sock.connect((bt_address, port))
-
-renderer = Renderer
-
 
 def closer():
     input()
@@ -76,23 +96,27 @@ def loooooop():
 
 
 def keepAlive():
+    global btConnected
     while True:
+        if not btConnected:
+            connectBT()
         try:
+            select.select([sock,], [sock,], [], 5)
             send()
             print("badum")
         except:
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except OSError:
-                # Handle cases where the socket is already disconnected
-                pass
-            finally:
-                sock.close()
-                exit()
+            sock.shutdown(2)
+            sock.close()
+            print("Reconnecting...")
+            btConnected = False
+            connectBT()
 
 
 def send(data=None):
     with lock:
+        # Blocks lock while not connected
+        while not btConnected:
+            pass
         # Header bytes etc
         printer = Printer(sock)
         if data:
@@ -101,6 +125,21 @@ def send(data=None):
             printer.sendHeartbeat()
         time.sleep(5)
 
+def sendQueue():
+    print("sending queue", btConnected)
+    renderer = Renderer()
+
+    with open("queue.json", "r") as f:
+        queue = json.load(f)
+
+    for message in queue:
+        textImage = renderer.create_text(message["msg"])
+        buf = renderer.processImage(textImage)
+        send(buf)
+        queue.remove(message)
+
+    with open("queue.json", "w") as f:
+        json.dump(queue, f, indent=4)
 
 ka = threading.Thread(target=keepAlive)
 cl = threading.Thread(target=closer)
