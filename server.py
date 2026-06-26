@@ -1,12 +1,4 @@
-import base64
-import threading
-
-import paho.mqtt.client as paho
-import websockets
-from websockets import broadcast
 from websockets.sync.server import serve
-
-from renderer import Renderer
 
 CLIENTS = set()
 

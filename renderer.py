@@ -1,6 +1,8 @@
+import base64
 import struct
 import PIL
 from PIL import Image, ImageOps, ImageChops, ImageDraw, ImageFont
+from io import BytesIO
 
 class Renderer:
     printerWidth = 384
@@ -13,6 +15,7 @@ class Renderer:
         if bbox:
             return im.crop((bbox[0],bbox[1],bbox[2],bbox[3]+10)) # don't cut off the end of the image
 
+    # TODO: UPDATE TO INCLUDE IMAGE
     def create_text(self, text, font_name="Lucon.ttf", font_size=32):
         img = PIL.Image.new('RGB', (self.printerWidth, 5000), color = (255, 255, 255))
         font = ImageFont.truetype(font_name, font_size)
@@ -24,6 +27,31 @@ class Renderer:
         lines = "\n".join(lines)
         d.text((0,0), lines, fill=(0,0,0), font=font)
         return self.trimImage(img)
+
+    def create_attachment(self, data):
+        if "," in data:
+            data = data.split(",")[1]
+
+        image_bytes = base64.b64decode(data)
+
+        return Image.open(BytesIO(image_bytes))
+
+    def createBody(self, message):
+        text_raw = self.create_text(message["msg"])
+        image_raw = self.create_attachment(message["img"])
+
+        text = self.processImage(text_raw)
+        image = self.processImage(image_raw)
+
+        totalHeight = text.height + image.height
+
+        new_im = Image.new('1', (self.printerWidth, totalHeight))
+
+        new_im.paste(image, (0,0))
+        new_im.paste(text, (0, image.height))
+        return new_im
+
+
 
     def get_wrapped_text(self, text: str, font: PIL.ImageFont.ImageFont,
                          line_length: int):
@@ -70,7 +98,9 @@ class Renderer:
         im = ImageOps.invert(im.convert('L'))
         # ... and now convert back to single bit
         im = im.convert('1')
+        return im
 
+    def getBuffer(self, im):
         buf = b''.join((bytearray(b'\x1d\x76\x30\x00'),
                         struct.pack('2B', int(im.size[0] / 8 % 256),
                                     int(im.size[0] / 8 / 256)),

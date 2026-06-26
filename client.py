@@ -48,6 +48,7 @@ def on_message(client, userdata, msg):
         return
     id = random.randint(1111, 9999)
     message = json.loads(msg)
+
     payload = {"id" : id, "msg" : message}
     if not btConnected:
         with open("queue.json", "r") as f:
@@ -57,8 +58,8 @@ def on_message(client, userdata, msg):
             json.dump(queue, f, indent = 4)
 
     renderer = Renderer()
-    textImage = renderer.create_text(message)
-    buf = renderer.processImage(textImage)
+    textImage = renderer.createBody(message)
+    buf = renderer.getBuffer(textImage)
     send(buf)
 
     with open("queue.json", "r") as f:
