@@ -87,6 +87,13 @@
         background-color: #a8a8a8;
         padding: 0.1vw 1vw;
     }
+    #submit_conf {
+        width: 3.5vw;
+        height: 3.5vw;
+        left: 89.7vw;
+        top: 70%;
+        border: groove yellowgreen 0.2vw;
+    }
 }
 @media only screen and (min-device-width: 1000px) {
     .bg {
@@ -152,4 +159,17 @@
         outline: none;
         border: none;
     }
+    #submit_conf {
+        width: 23px;
+        height: 23px;
+        left: 1145px;
+        top: 700px;
+        border-radius: 100px;
+    }
+}
+#submit_conf {
+    position: absolute;
+    background-color: greenyellow;
+    box-shadow: 1px 1px 30px 10px yellowgreen;
+    border-radius: 100vw;
 }

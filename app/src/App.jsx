@@ -8,6 +8,7 @@ function App() {
   const [msg, setMsg] = useState("");
   const clientRef = useRef(null);
   const input = useRef(null);
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
   useEffect(() => {
     // 1. Initialize the Client
@@ -48,19 +49,28 @@ function App() {
     e.preventDefault();
     if (msg === "" && img === "") return;
     if (clientRef.current && clientRef.current.isConnected()) {
-        const message = new Paho.Message(
-            JSON.stringify({
-                msg: msg,
-                img: img,
-            })
-        );
-        message.destinationName = "70656e6973/" + topic;
-        clientRef.current.send(message);
-        setMsg("");
-        setImg("");
-        input.current.value = "";
+      const message = new Paho.Message(
+        JSON.stringify({
+          msg: msg,
+          img: img,
+        }),
+      );
+      message.destinationName = "70656e6973/" + topic;
+      clientRef.current.send(message);
+      showSubmission();
+      setMsg("");
+      setImg("");
+      input.current.value = "";
     }
   };
+  function showSubmission() {
+    console.log("Sent. Confirmation light enabling");
+    setJustSubmitted(true);
+    // setTimeout(, 20000);
+    setTimeout(() => {
+      setJustSubmitted(false);
+    }, 2000);
+  }
 
   const handleFileChange = (event) => {
     const files = event.target.files;
@@ -99,6 +109,7 @@ function App() {
             Send!
           </button>
         </form>
+        {justSubmitted ? <div id="submit_conf"></div> : <></>}
       </div>
     </>
   );
