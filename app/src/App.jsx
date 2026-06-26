@@ -8,8 +8,25 @@ function App() {
   const [msg, setMsg] = useState("");
   const clientRef = useRef(null);
   const input = useRef(null);
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
   useEffect(() => {
+    const video = document.getElementsByClassName('start')[0];
+
+    console.log(video)
+
+    // Wait for video details to load before jumping to the timestamp
+    video.addEventListener('loadedmetadata', function() {
+      console.log(video.currentTime)
+      video.currentTime = 0; // Jump to 0 seconds
+      video.play()
+    });
+
+    video.addEventListener('timeupdate', function handleLoop() {
+      console.log(video.currentTime)
+    })
+
+
     // 1. Initialize the Client
     const client = new Paho.Client(
       "broker.hivemq.com", // Replace with your MQTT broker address
@@ -49,19 +66,28 @@ function App() {
     e.preventDefault();
     if (msg === "" && img === "") return;
     if (clientRef.current && clientRef.current.isConnected()) {
-        const message = new Paho.Message(
-            JSON.stringify({
-                msg: msg,
-                img: img,
-            })
-        );
-        message.destinationName = "70656e6973/" + topic;
-        clientRef.current.send(message);
-        setMsg("");
-        setImg("");
-        input.current.value = "";
+      const message = new Paho.Message(
+        JSON.stringify({
+          msg: msg,
+          img: img,
+        }),
+      );
+      message.destinationName = "70656e6973/" + topic;
+      clientRef.current.send(message);
+      showSubmission();
+      setMsg("");
+      setImg("");
+      input.current.value = "";
     }
   };
+  function showSubmission() {
+    console.log("Sent. Confirmation light enabling");
+    setJustSubmitted(true);
+    // setTimeout(, 20000);
+    setTimeout(() => {
+      setJustSubmitted(false);
+    }, 2000);
+  }
 
   const handleFileChange = (event) => {
     const files = event.target.files;
@@ -78,7 +104,12 @@ function App() {
   };
 
   return (
-    <>
+    <div style={{height:"100vh", overflow:"clip", position:"relative"}}>
+      <div className={"videoCont"}>
+        <video muted className={"start"}>
+          <source src={window.innerWidth > 1000 ? "/FaxBoot.mov" : "/FaxBoot_mobile.mov"} type="video/quicktime"/>
+        </video>
+      </div>
       <div className={"bg"}>
         <form onSubmit={sendMessage} className="sendForm">
           <select onChange={(e) => setTopic(e.target.value)}>
@@ -92,7 +123,7 @@ function App() {
             ref={input}
             type=""
           />
-          <label for="file-upload" class="custom-file-upload">
+          <label for="file-upload" className="custom-file-upload">
             Upload img
           </label>
           <input type="file" id="file-upload" onChange={handleFileChange} />
@@ -100,8 +131,9 @@ function App() {
             Send!
           </button>
         </form>
+        {justSubmitted ? <div id="submit_conf"></div> : <></>}
       </div>
-    </>
+    </div>
   );
 }
 
