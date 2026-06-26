@@ -3,17 +3,18 @@ import random
 import socket
 import threading
 import time
-
 import paho.mqtt.client as paho
-
 from printer import Printer
 from renderer import Renderer
 import select
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 lock = threading.Lock()
 KEY = "70656e6973"
 
-bt_address = "00:00:00:04:11:D0"
+bt_address = os.getenv("BT_ADDRESS")
 port = 1
 btConnected = False
 
@@ -31,12 +32,12 @@ def connectBT():
         except Exception as e:
             btConnected = False
             print("Connection failed", e)
-            time.sleep(5)
+            time.sleep(1)
 
 def on_connect(client, userdata, flags, reason_code, properties=None):
     if reason_code == 0:
         client.subscribe(KEY + "/all", qos=1)
-        client.subscribe(KEY + "/simon", qos=1)
+        client.subscribe(KEY + os.getenv("TOPIC"), qos=1)
         print("Subscribed")
 
 
@@ -46,23 +47,26 @@ def on_message(client, userdata, msg):
     if len(msg) == 0:
         return
     id = random.randint(1111, 9999)
+    message = json.loads(msg)
+
+    payload = {"id" : id, "msg" : message}
     if not btConnected:
         with open("queue.json", "r") as f:
             queue = json.load(f)
-            queue.append({"id" : id, "msg" : msg})
+            queue.append(payload)
         with open("queue.json", "w") as f:
             json.dump(queue, f, indent = 4)
 
     renderer = Renderer()
-    textImage = renderer.create_text(msg)
-    buf = renderer.processImage(textImage)
+    textImage = renderer.createBody(message)
+    buf = renderer.getBuffer(textImage)
     send(buf)
 
     with open("queue.json", "r") as f:
         queue = json.load(f)
-        queue = queue.remove({"id" : id, "msg" : msg})
+        if payload in queue:
+            queue = queue.remove(payload)
     with open("queue.json", "w") as f:
-
         json.dump(queue, f, indent = 4)
 
 client = paho.Client(paho.CallbackAPIVersion.VERSION2)
@@ -103,10 +107,13 @@ def keepAlive():
         try:
             select.select([sock,], [sock,], [], 5)
             send()
-            print("badum")
         except:
-            sock.shutdown(2)
-            sock.close()
+            try:
+                sock.shutdown(2)
+                sock.close()
+            except:
+                pass
+
             print("Reconnecting...")
             btConnected = False
             connectBT()
@@ -126,17 +133,18 @@ def send(data=None):
         time.sleep(5)
 
 def sendQueue():
-    print("sending queue", btConnected)
+    print("sending queue")
     renderer = Renderer()
 
     with open("queue.json", "r") as f:
         queue = json.load(f)
 
+
     for message in queue:
         textImage = renderer.create_text(message["msg"])
         buf = renderer.processImage(textImage)
         send(buf)
-        queue.remove(message)
+        # _queue.remove(message)
 
     with open("queue.json", "w") as f:
         json.dump(queue, f, indent=4)

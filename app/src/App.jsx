@@ -3,6 +3,7 @@ import "./App.css";
 import Paho from "paho-mqtt";
 
 function App() {
+  const [img, setImg] = useState("");
   const [msg, setMsg] = useState("");
   const clientRef = useRef(null);
   const input = useRef(null);
@@ -44,15 +45,35 @@ function App() {
   // Function to Publish Messages
   const sendMessage = (e) => {
     e.preventDefault();
-    if (msg == "") return;
+    if (msg === "" && img === "") return;
     if (clientRef.current && clientRef.current.isConnected()) {
-      const message = new Paho.Message(msg);
+      const message = new Paho.Message(
+        JSON.stringify({
+          msg: msg,
+          img: img,
+        }),
+      );
       message.destinationName = "70656e6973/all";
       clientRef.current.send(message);
       setMsg("");
       input.current.value = "";
     }
   };
+
+  const handleFileChange = (event) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const uploadedFile = files[0];
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        const fileData = event.target.result.toString();
+        setImg(fileData);
+      };
+      reader.readAsDataURL(uploadedFile);
+    }
+  };
+
   return (
     <>
       <div className={"bg"}>
@@ -71,7 +92,7 @@ function App() {
           <label for="file-upload" class="custom-file-upload">
             Upload img
           </label>
-          <input type="file" id="file-upload" />
+          <input type="file" id="file-upload" onChange={handleFileChange} />
           <button id="send" type={"submit"}>
             Send!
           </button>
