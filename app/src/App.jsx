@@ -11,6 +11,22 @@ function App() {
   const [justSubmitted, setJustSubmitted] = useState(false);
 
   useEffect(() => {
+    const video = document.getElementsByClassName('start')[0];
+
+    console.log(video)
+
+    // Wait for video details to load before jumping to the timestamp
+    video.addEventListener('loadedmetadata', function() {
+      console.log(video.currentTime)
+      video.currentTime = 0; // Jump to 0 seconds
+      video.play()
+    });
+
+    video.addEventListener('timeupdate', function handleLoop() {
+      console.log(video.currentTime)
+    })
+
+
     // 1. Initialize the Client
     const client = new Paho.Client(
       "broker.hivemq.com", // Replace with your MQTT broker address
@@ -88,8 +104,12 @@ function App() {
   };
 
   return (
-    <>
-      <div className={"start"}/>
+    <div style={{height:"100vh", overflow:"clip", position:"relative"}}>
+      <div className={"videoCont"}>
+        <video muted className={"start"}>
+          <source src={window.innerWidth > 1000 ? "/FaxBoot.mov" : "/FaxBoot_mobile.mov"} type="video/quicktime"/>
+        </video>
+      </div>
       <div className={"bg"}>
         <form onSubmit={sendMessage} className="sendForm">
           <select onChange={(e) => setTopic(e.target.value)}>
@@ -113,7 +133,7 @@ function App() {
         </form>
         {justSubmitted ? <div id="submit_conf"></div> : <></>}
       </div>
-    </>
+    </div>
   );
 }
 

@@ -6,10 +6,12 @@
     .start {
         position: absolute;
         width: 100vw;
-        height: 100vh;
-        background-image: url("assets/FaxBoot_mobile.gif");
+        /*background-image: url("assets/FaxBoot_mobile.gif");*/
         background-repeat: no-repeat;
         background-size: contain;
+        z-index: 10000;
+        animation: linear turnOn 1s forwards;
+        animation-delay: 2.2s;
         background-color: #141516;
         /*background-position: calc(50% + 39px) 50%;*/
         max-height: calc(100vw / 0.572222222);
@@ -119,16 +121,13 @@
     .start {
         position: absolute;
         width: 100vw;
-        height: 100vh;
-        background-image: url("assets/FaxBoot.gif");
         background-repeat: no-repeat;
         background-size: cover;
         background-color: #141516;
-        /*background-position: calc(50% + 39px) 50%;*/
         max-height: calc(100vw / 0.572222222);
         z-index: 10000;
         animation: linear turnOn 1s forwards;
-        animation-delay: 2s;
+        animation-delay: 2.2s;
     }
 
 
@@ -206,4 +205,10 @@
 @keyframes turnOn {
     0% {opacity: 100%;}
     100% {opacity: 0%;}
+}
+
+.videoCont {
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
 }
