@@ -33,7 +33,7 @@ function App() {
     // 1. Initialize the Client
     const client = new Paho.Client(
       "broker.hivemq.com", // Replace with your MQTT broker address
-        8884,
+      8884,
       crypto.randomUUID(),
     );
 
