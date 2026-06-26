@@ -13,8 +13,8 @@ function App() {
     // 1. Initialize the Client
     const client = new Paho.Client(
       "broker.hivemq.com", // Replace with your MQTT broker address
-      8000,
-      "react-client-id",
+      8884,
+      crypto.randomUUID(),
     );
 
     // 2. Setup Callbacks
@@ -24,6 +24,7 @@ function App() {
 
     // 3. Connect to the Broker
     client.connect({
+      useSSL: true,
       onSuccess: () => {
         console.log("Connected to MQTT Broker");
         // 4. Subscribe after connecting
