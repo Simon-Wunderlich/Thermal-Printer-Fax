@@ -1,3 +1,4 @@
+import datetime
 import json
 import random
 import socket
@@ -27,6 +28,7 @@ def connectBT():
         try:
             sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
             sock.connect((bt_address, port))
+            print("Connected")
             btConnected = True
             sendQueue()
         except Exception as e:
@@ -51,6 +53,7 @@ def on_message(client, userdata, msg):
     id = random.randint(1111, 9999)
     message = json.loads(msg)
 
+
     payload = {"id" : id, "msg" : message}
     if not btConnected:
         with open("queue.json", "r") as f:
@@ -62,6 +65,7 @@ def on_message(client, userdata, msg):
     renderer = Renderer()
     textImage = renderer.createBody(message)
     buf = renderer.getBuffer(textImage)
+    print("Sending message", message["msg"])
     send(buf)
 
     with open("queue.json", "r") as f:
@@ -104,6 +108,7 @@ def loooooop():
 def keepAlive():
     global btConnected
     while True:
+        time.sleep(5)
         if not btConnected:
             connectBT()
         try:
@@ -116,7 +121,7 @@ def keepAlive():
             except:
                 pass
 
-            print("Reconnecting...")
+            print("Reconnecting...", datetime.datetime.now())
             btConnected = False
             connectBT()
 
@@ -146,10 +151,9 @@ def sendQueue():
         textImage = renderer.create_text(message["msg"])
         buf = renderer.processImage(textImage)
         send(buf)
-        # _queue.remove(message)
 
     with open("queue.json", "w") as f:
-        json.dump(queue, f, indent=4)
+        json.dump([], f, indent=4)
 
 ka = threading.Thread(target=keepAlive)
 cl = threading.Thread(target=closer)

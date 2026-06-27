@@ -1,8 +1,23 @@
 import { useEffect, useState, useRef } from "react";
+import { DateFormatter } from "@internationalized/date"
 import "./App.css";
 import Paho from "paho-mqtt";
 
+const formatter = new DateFormatter("en-GB", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "numeric",
+  hour12: true
+})
+
+
 function App() {
+  const storedName = localStorage.getItem("name") || ""
+
+  const [_name, set_Name] = useState(storedName);
+  const [name, setName] = useState(storedName);
   const [img, setImg] = useState("");
   const [topic, setTopic] = useState("all");
   const [msg, setMsg] = useState("");
@@ -73,6 +88,7 @@ function App() {
         JSON.stringify({
           msg: msg,
           img: img,
+          header: name + " at " + formatter.format(new Date()),
         }),
       );
       message.destinationName = "70656e6973/" + topic;
@@ -106,6 +122,13 @@ function App() {
     }
   };
 
+  function storeName(e) {
+    e.preventDefault();
+    setName(_name)
+    if (_name)
+      localStorage.setItem("name", _name)
+  }
+
   return (
     <div style={{height:"100vh", overflow:"clip", position:"relative"}}>
       <div className={"videoCont"}>
@@ -113,8 +136,20 @@ function App() {
           <source src={window.innerWidth > 1000 ? "/FaxBoot.mov" : "/FaxBoot_mobile.mov"} type="video/quicktime"/>
         </video>
       </div>
-      <div className={"bg"}>
-        <form onSubmit={sendMessage} className="sendForm">
+        { !name ?
+            <div className={"bg-blank"}>
+              <form onSubmit={(e) => storeName(e)} className="sendForm">
+                <div className={"nameInput"}>
+                  <p>Enter your name</p>
+                  <input onInput={(e) => set_Name(e.target.value)}/>
+                  <button style={{width: "40px", height: "30px"}}>Ok</button>
+                </div>
+              </form>
+            </div>
+         :
+            <div className={"bg"}>
+
+            <form onSubmit={sendMessage} className="sendForm">
           <select onChange={(e) => setTopic(e.target.value)}>
             <option value={"all"}>All</option>
             <option value={"chris"}>Chris</option>
@@ -134,8 +169,10 @@ function App() {
             Send!
           </button>
         </form>
+
         {justSubmitted ? <div id="submit_conf"></div> : <></>}
       </div>
+        }
     </div>
   );
 }

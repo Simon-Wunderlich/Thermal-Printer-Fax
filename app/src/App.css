@@ -28,13 +28,24 @@
         /*background-position: calc(50% + 39px) 50%;*/
         max-height: calc(100vw / 0.572222222);
     }
+    .bg-blank {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("assets/fax_desk_long_mobile.png");
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-color: #141516;
+        /*background-position: calc(50% + 39px) 50%;*/
+        max-height: calc(100vw / 0.572222222);
+    }
 
     form {
         position: absolute;
         left: 12vw;
         width: 77vw;
         height: 27vh;
-        top: 22vh;
+        top: 20vh;
         display: flex;
         flex-wrap: nowrap;
         flex-direction: column;
@@ -116,6 +127,12 @@
         width: 100vw;
         height: 100vh;
         background-image: url("assets/fax_desk_long-text.png");
+    }
+    .bg-blank {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("assets/fax_desk_long.png");
     }
 
     .start {
@@ -211,4 +228,17 @@
     display: flex;
     justify-content: center;
     overflow: hidden;
+}
+
+.nameInput {
+    background-color: rgb(237, 237, 237);
+    height: 65px;
+    width: 200px;
+    position: relative;
+    display: flex;
+    justify-content: space-evenly;
+    border: #382b1d 2px solid;
+    border-top: #0000a8 10px solid;
+    flex-direction: column;
+    padding: 15px;
 }
