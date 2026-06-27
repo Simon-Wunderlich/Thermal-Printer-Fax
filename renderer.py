@@ -55,7 +55,7 @@ class Renderer:
             image = self.processImage(image_raw)
 
         if message["header"] != "":
-            header_raw = self.create_text(message["header"])
+            header_raw = self.create_text(message["header"], font_size=20)
             header = self.processImage(header_raw)
 
         textHeight = text.height if text is not None else 0
