@@ -65,12 +65,13 @@ class Renderer:
 
         new_im = Image.new("1", (self.printerWidth, totalHeight))
 
-        if header is not None:
-            new_im.paste(header, (0, 0))
+
         if image is not None:
             new_im.paste(image, (0, 0))
         if text is not None:
             new_im.paste(text, (0, imgHeight))
+        if header is not None:
+            new_im.paste(header, (0, imgHeight + textHeight))
         return new_im
 
     def get_wrapped_text(
