@@ -5,6 +5,7 @@ from io import BytesIO
 
 import PIL
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageOps
+from pilmoji import Pilmoji
 
 
 class Renderer:
@@ -31,7 +32,8 @@ class Renderer:
         for line in text.splitlines():
             lines.append(self.get_wrapped_text(line, font, self.printerWidth))
         lines = "\n".join(lines)
-        d.text((0, 0), lines, fill=(0, 0, 0), font=font)
+        with Pilmoji(img) as pilmoji:
+            pilmoji.text((0, 0), lines, fill=(0, 0, 0), font=font)
         return self.trimImage(img)
 
     def create_attachment(self, data):
