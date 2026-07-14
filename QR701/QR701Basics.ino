@@ -9,8 +9,86 @@
 
 #include <Adafruit_Thermal.h>
 #include <SoftwareSerial.h>
+#include <ArduinoMqttClient.h>
+#include <WiFiNINA.h>
+#include <string.h>
+#include <EEPROM.h>
 #include "qrcode.h"
+#include "SafeString.h"
 
+createSafeStringReader(sfReader, 32, "\r\n");
+
+WiFiClient wifiClient;
+const int sigLen = 4
+const char SIGNATURE[] = "WIFI";
+String ssid = "";
+
+void writeEEPROM(byte* first, int start, size_t len)
+{
+    for(int i = 0; i < len; i++)
+    {
+        EEPROM.write(i, first[i]);
+    }
+}
+
+char[] readEEPROM(int start, size_t len)
+{
+    byte res;
+    char message[len+1];
+    for(int i = 0; i < len; i++)
+    {
+        res = EEPROM.read(i);
+        meessage[i] = (char)res;
+    }
+    # Terminating bit - idk if this is how u do it lmao
+    message[len+1] = 0;
+    return message;
+}
+
+void loadWifiCredentials() {
+    # Check if wifi credentials have been saved already
+    const char key[] = readEEPROM(0, sigLen);
+    if (strcmp(key, "WIFI") != 0)
+        return;
+
+    const int ssidLength = (int)EEPROM.read(sigLen);
+    const int pwLength = (int)EEPROM.read(1 + sigLen + ssidLength);
+
+    const char ssid[] = readEEPROM(1 + sigLen, ssidLength);
+    const char pw[] = readEEPROM(2 + sigLen + ssidLength, pwLength);
+
+    connectToWiFi(ssid, pw);
+}
+
+void readWifiCredentials() {
+    if (sfReader.read()) {
+        # Store ssid
+        if (ssid.length() == 0) {
+            # Store ssid length
+            writeEEPROM(sfReader.length(), sigLen, 1);
+            # Store ssid
+            writeEEPROM(sfReader.c_str(), sigLen + 1, sfReader.length());
+            ssid = String(sfReader);
+            Serial.println("Enter password:\n");
+            return;
+        }
+
+        # Store password length + value
+        writeEEPROM(sfReader.length(), ssid.length() + sigLen + 1, 1);
+        writeEEPROM(sfReader.c_str(), ssid.length() + sigLen + 2, sfReader.length());
+
+        # Attempt to connect to wifi (Will block all other processes)
+        connectToWiFi(ssid, sfReader);
+        ssid = "";
+    }
+}
+
+void connectToWiFi(String ssid, String pass) {
+    while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
+        Serial.print(".");
+        delay(5000);
+    }
+}
 
 const byte BTN_PIN = 2; // push-button
 const byte RX_PIN = 5; // goes to TX on printer
@@ -141,6 +219,9 @@ void setup() {
 
   pinMode(BTN_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(BTN_PIN), handleButton, FALLING);
+  sfReader.connect(Serial)
+
+  loadWiFiCredentials();
 }
 
 
@@ -148,6 +229,7 @@ void setup() {
  * Command: main loop
  */
 void loop() {
+  readWifiCredentials();
   if (button_pressed) {
     printerTest();
     // printerButtonPressed();
