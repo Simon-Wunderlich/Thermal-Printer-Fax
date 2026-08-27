@@ -155,6 +155,7 @@ def sendQueue():
     with open("queue.json", "w") as f:
         json.dump([], f, indent=4)
 
+
 ka = threading.Thread(target=keepAlive)
 cl = threading.Thread(target=closer)
 lf = threading.Thread(target=loooooop)
