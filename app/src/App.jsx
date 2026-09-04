@@ -154,6 +154,7 @@ function App() {
             <option value={"all"}>All</option>
             <option value={"chris"}>Chris</option>
             <option value={"simon"}>Simon</option>
+            <option value={"lachie"}>Lachie</option>
             <option value={"akira"}>Akira</option>
           </select>
           <textarea
