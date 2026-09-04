@@ -14,43 +14,35 @@ MqttClient mqttClient(wifiClient);
 const char broker[] = "broker.hivemq.com";
 const int port = 1883;
 
-const int sigLen = 4;
-const char SIGNATURE[] = "WIFI";
+const byte MAX_SIZE = 32;
+char* key = "WIFI_SAVED";
 String ssid = "";
 
-void writeEEPROM(const char* first, int start, size_t len)
-{
-    for (int i = 0; i < len; i++)
- {
-      EEPROM.write(i, first[i]);
-  }
+struct NetworkData {
+  char* key;
+  char ssid[MAX_SIZE];
+  char pass[MAX_SIZE];
+};
+
+void saveCredentials(const String ssid, const String pass) {
+  NetworkData creds;
+  creds.key = key;
+  ssid.toCharArray(creds.ssid, MAX_SIZE);
+  pass.toCharArray(creds.pass, MAX_SIZE);
+
+  EEPROM.put(0, creds);
+  EEPROM.commit();
 }
 
-char* readEEPROM(int start, size_t len)
-{
-  byte res;
-  char* message = (char*)malloc(len * sizeof(char));;
-  for (int i = 0; i < len; i++)
-  {
-    res = EEPROM.read(i);
-    *(message + i) = (char)res;
-  }
-  return message;
-}
 
 void loadWifiCredentials() {
   // Check if wifi credentials have been saved already
-  const char* key = readEEPROM(0, sigLen);
-  if (strcmp(key, "WIFI") != 0)
-  return;
-  
-  const int ssidLength = (int)EEPROM.read(sigLen);
-  const int pwLength = (int)EEPROM.read(1 + sigLen + ssidLength);
-  
-  const char* ssid = readEEPROM(1 + sigLen, ssidLength);
-  const char* pw = readEEPROM(2 + sigLen + ssidLength, pwLength);
-  
-  connectToWiFi(ssid, pw);
+  NetworkData creds;
+  EEPROM.get(0, creds);
+  if (creds.key != key)
+    return;
+
+  connectToWiFi(creds.ssid, creds.pass);
 }
 
 void readWifiCredentials() {
@@ -59,19 +51,15 @@ void readWifiCredentials() {
     if (ssid.length() == 0) {
       // Store ssid length
       unsigned int len = sfReader.length();
-      writeEEPROM((char*)&len, sigLen, 1);
       // Store ssid
-      writeEEPROM(sfReader.c_str(), sigLen + 1, sfReader.length());
       ssid = String(sfReader.c_str());
       Serial.println("Enter password:\n");
       return;
     }
-    
+
     // Store password length + value
     unsigned int len = sfReader.length();
-    writeEEPROM((char*)&len, ssid.length() + sigLen + 1, 1);
-    writeEEPROM(sfReader.c_str(), ssid.length() + sigLen + 2, sfReader.length());
-    
+
     // Attempt to connect to wifi (Will block all other processes)
     connectToWiFi(ssid, sfReader.c_str());
     ssid = "";
@@ -79,14 +67,20 @@ void readWifiCredentials() {
 }
 
 void connectToWiFi(String ssid, String pass) {
+  Serial.println("Attempting to connect with ssid=" + ssid + ", pass=" + pass);
+  Serial.print("Connecting");
   int retry_count = 10;
-  while (WiFi.begin(ssid, pass) != WL_CONNECTED && retry_count > 0) {
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED && retry_count > 0) {
     Serial.print(".");
     retry_count -= 1;
     delay(5000);
   }
   if (retry_count > 0) {
-    writeEEPROM(SIGNATURE, 0, sigLen);
+    Serial.println("\nConnected!");
+    saveCredentials(ssid, pass);
+    connectMQTT();
+    Serial.println("----------------");
   }
 }
 
@@ -94,30 +88,44 @@ void connectMQTT() {
   if (!mqttClient.connect(broker, port)) {
     Serial.println(mqttClient.connectError());
     // Block proccess
-    while(1);
+    while (1)
+      ;
   }
   mqttClient.onMessage(onMessage);
-  mqttClient.subscribe(KEY + "/" + USER);
-  mqttClient.subscribe(KEY + "/all");
+  std::string user_topic = KEY + "/" + USER;
+  mqttClient.subscribe(user_topic.c_str());
+  std::string all_topic = KEY + "/" + USER;
+  mqttClient.subscribe(all_topic.c_str());
+  Serial.println("Subscribed");
 }
 
 void onMessage(int len) {
   // PRINT MESSAGE HERE
-  while(mqttClient.available()) {
+  while (mqttClient.available()) {
     Serial.print((char)mqttClient.read());
   }
 }
 
 void setup() {
-    sfReader.connect(Serial);
+  Serial.begin(9600);
+  delay(2000);
+  while (!Serial) {
+    ;
+  }
 
-    loadWifiCredentials();
+  if (!EEPROM.begin(512)) {
+    Serial.println("Failed to initialize EEPROM");
+  }
+
+  sfReader.connect(Serial);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  loadWifiCredentials();
+  Serial.println("Enter SSID:");
 }
 
-
-//Command: main loop
-
 void loop() {
-    readWifiCredentials();
-    mqttClient.poll();
+  readWifiCredentials();
+  mqttClient.poll();
 }
