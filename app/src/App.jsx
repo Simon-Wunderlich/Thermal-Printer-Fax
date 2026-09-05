@@ -24,6 +24,11 @@ function App() {
   const clientRef = useRef(null);
   const input = useRef(null);
   const [justSubmitted, setJustSubmitted] = useState(false);
+  const [receivedConfirmationPrint, setReceivedConfirmationPrint] = useState(false)
+  const [receivedConfirmationQueue, setReceivedConfirmationQueue] = useState(false)
+  const [receivedFailure, setReceivedFailure] = useState(false)
+  const [receivedResponse,  setReceivedResponse] = useState(false);
+
 
   useEffect(() => {
     const video = document.getElementsByClassName('start')[0];
@@ -52,6 +57,36 @@ function App() {
       crypto.randomUUID(),
     );
 
+
+    function showReturn(which)
+    {
+      console.log("showing the return");
+      if (which.type=="p")
+      {
+        console.log("it printed!");
+        setReceivedConfirmationPrint(true);
+        setTimeout(() => { setReceivedConfirmationPrint(false) }, 2000);
+      }
+      else
+      {
+        setReceivedConfirmationQueue(true);
+        setTimeout(() => { setReceivedConfirmationQueue(false) }, 2000);
+      }
+    }
+
+    function on_message(message)
+    {
+      setReceivedResponse(true);
+      console.log("Recieved Return from Printer");
+      const data = JSON.parse(message.payloadString);
+      console.log(data);
+      console.log(data.topic);
+      console.log(data.type);
+      showReturn(data);
+    }
+
+    client.onMessageArrived = on_message;
+
     // 2. Setup Callbacks
     client.onConnectionLost = (responseObject) => {
       console.log("Connection Lost: " + responseObject.errorMessage);
@@ -63,7 +98,7 @@ function App() {
       onSuccess: () => {
         console.log("Connected to MQTT Broker");
         // 4. Subscribe after connecting
-        client.subscribe("70656e6973/all");
+        client.subscribe("70656e6973/acknowledge")
       },
       onFailure: (message) => {
         console.log("Connection Failed: " + message.errorMessage);
@@ -97,6 +132,16 @@ function App() {
       setMsg("");
       setImg("");
       input.current.value = "";
+      setTimeout(() => {
+        if (receivedResponse && !(receivedConfirmationPrint||receivedConfirmationQueue)) {
+          setReceivedResponse(false);
+        }
+        else {
+          setReceivedFailure(true);
+          setReceivedResponse(false);
+          setTimeout(() => { setReceivedFailure(false) }, 2000);
+        }
+      }, 10000);
     }
   };
   function showSubmission() {
@@ -162,7 +207,7 @@ function App() {
             ref={input}
             type=""
           />
-          <label for="file-upload" className="custom-file-upload">
+          <label htmlFor="file-upload" className="custom-file-upload">
             Upload img
           </label>
           <input type="file" id="file-upload" onChange={handleFileChange} />
@@ -171,7 +216,10 @@ function App() {
           </button>
         </form>
 
-        {justSubmitted ? <div id="submit_conf"></div> : <></>}
+          {justSubmitted ? <div className="conf_light" id="submit_conf"></div> : <></>}
+          {receivedConfirmationPrint ? <div className="conf_light"  id="print_conf"></div> : <></>}
+          {receivedConfirmationQueue ? <div className="conf_light" id="queue_conf"></div> : <></>}
+          {receivedFailure ? <div className="conf_light" id="fail_conf"></div> : <></>}
       </div>
         }
     </div>
