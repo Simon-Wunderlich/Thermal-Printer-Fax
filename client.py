@@ -148,7 +148,7 @@ def sendQueue():
 
 
     for message in queue:
-        textImage = renderer.create_text(message["msg"])
+        textImage = renderer.createBody(message["msg"])
         buf = renderer.processImage(textImage)
         send(buf)
 
