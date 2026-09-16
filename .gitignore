@@ -1,4 +1,5 @@
 .idea/
+queue.json
 __pycache__/
 .env
 /QR701/client/secrets.h
