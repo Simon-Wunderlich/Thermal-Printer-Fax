@@ -204,7 +204,7 @@
         outline: none;
         border: none;
     }
-    #submit_conf {
+    .conf_light {
         width: 23px;
         height: 23px;
         left: 1145px;
@@ -214,8 +214,30 @@
 }
 #submit_conf {
     position: absolute;
-    background-color: greenyellow;
-    box-shadow: 1px 1px 30px 10px yellowgreen;
+    background-color: royalblue;
+    box-shadow: 1px 1px 30px 10px royalblue;
+    border-radius: 100vw;
+}
+#queue_conf
+{
+    position: absolute;
+    background-color: orange;
+    box-shadow: 1px 1px 30px 10px orange;
+    border-radius: 100vw;
+}
+
+#print_conf
+{
+    position: absolute;
+    background-color: lawngreen;
+    box-shadow: 1px 1px 30px 10px lawngreen;
+    border-radius: 100vw;
+}
+#fail_conf
+{
+    position: absolute;
+    background-color: red;
+    box-shadow: 1px 1px 30px 10px red;
     border-radius: 100vw;
 }
 
