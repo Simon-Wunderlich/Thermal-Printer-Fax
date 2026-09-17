@@ -1,3 +1,4 @@
+echo "[]" > queue.json
 sudo apt install screen
 python3 -m venv .venv
 source .venv/bin/activate
