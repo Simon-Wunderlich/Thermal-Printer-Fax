@@ -123,7 +123,8 @@ function App() {
         JSON.stringify({
           msg: msg,
           img: img,
-          header: name + " at " + formatter.format(new Date()),
+          header: name
+            // + " at " + formatter.format(new Date()),
         }),
       );
       message.destinationName = "70656e6973/" + topic;

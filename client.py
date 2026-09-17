@@ -67,6 +67,8 @@ def on_message(client, userdata, msg):
         return
     id = random.randint(1111, 9999)
     message = json.loads(msg)
+    
+    message["header"] += " at " + datetime.datetime.now().strftime("%a %-d %b, %-I:%M %p")
 
     payload = {"id": id, "msg": message}
     if not btConnected:
